@@ -12,10 +12,12 @@ class AdminController extends Controller
     public function dashboard()
     {
         $totalTests = Test::count();
-        $totalUsers = User::count();
-        $recentTests = Test::with('user')->latest()->take(5)->get();
+        $totalUsers = User::where('is_admin', 0)->count();
+        $diagnosedCount = Test::where('depression_level', 'Extreme depression') ->orWhere('depression_level', 'Severe depression') ->orWhere('depression_level', 'Moderate depression') ->orWhere('depression_level', 'Mild mood disturbance')->count();
+        $notDiagnosedCount = Test::where('depression_level', 'Normal')->count();
+        $recentTests = Test::with('user')->latest()->take(1)->get();
 
-        return view('admin.dashboard', compact('totalTests', 'totalUsers', 'recentTests'));
+        return view('admin.dashboard', compact('totalTests', 'totalUsers', 'recentTests', 'diagnosedCount', 'notDiagnosedCount'));
     }
 
     public function tests()
@@ -26,7 +28,7 @@ class AdminController extends Controller
 
     public function users()
     {
-        $users = User::latest()->paginate(10);
+        $users = User::where('is_admin', 0)->latest()->paginate(10);
         return view('admin.users', compact('users'));
     }
 

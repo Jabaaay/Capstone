@@ -2,24 +2,21 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class FacialExpression extends Model
 {
-    use HasFactory;
-
     protected $fillable = [
+        'user_id',
         'test_id',
-        'emotion',
-        'confidence',
-        'timestamp'
+        'expression',
+        'confidence'
     ];
 
-    protected $casts = [
-        'confidence' => 'float',
-        'timestamp' => 'datetime'
-    ];
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 
     public function test()
     {

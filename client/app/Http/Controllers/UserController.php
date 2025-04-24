@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Test;
 use App\Models\TestAnswer;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -21,14 +22,14 @@ class UserController extends Controller
     public function submitTest(Request $request)
     {
         $validated = $request->validate([
-            'first_name' => 'required|string|max:255',
-            'last_name' => 'required|string|max:255',
+            'first_name' => Auth::user()->first_name,
+            'last_name' => Auth::user()->last_name,
             'college' => 'required|string|max:255',
             'course' => 'required|string|max:255',
             'age' => 'required|integer|min:18|max:100',
             'contact_number' => 'required|string|max:20',
             'sex' => 'required|in:male,female',
-            'email' => 'required|email|max:255',
+            'email' => Auth::user()->email,
             'terms_accepted' => 'required|accepted'
         ]);
 
@@ -47,7 +48,7 @@ class UserController extends Controller
         $questions = [
             [
                 'id' => 1,
-                'text' => 'I do not feel sad.',
+                'text' => 'Sadness',
                 'options' => [
                     ['value' => 0, 'text' => 'I do not feel sad.'],
                     ['value' => 1, 'text' => 'I feel sad'],
@@ -279,14 +280,14 @@ class UserController extends Controller
         // Store the test results
         $test = Test::create([
             'user_id' => auth()->id(),
-            'first_name' => session('test_info.first_name'),
-            'last_name' => session('test_info.last_name'),
+            'first_name' => Auth::user()->first_name,
+            'last_name' => Auth::user()->last_name,
             'college' => session('test_info.college'),
             'course' => session('test_info.course'),
             'age' => session('test_info.age'),
             'contact_number' => session('test_info.contact_number'),
             'sex' => session('test_info.sex'),
-            'email' => session('test_info.email'),
+            'email' => Auth::user()->email,
             'total_score' => $totalScore,
             'depression_level' => $depressionLevel
         ]);

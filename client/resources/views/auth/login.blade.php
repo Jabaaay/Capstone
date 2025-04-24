@@ -1,4 +1,24 @@
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <x-guest-layout>
+
+@if(session('success_register'))
+<script>
+    Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: '{{ session('success_register') }}',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 3000,
+        
+    });
+</script>
+@endif
+
+
+
     <!-- Session Status -->
     <x-auth-session-status class="mb-4" :status="session('status')" />
 

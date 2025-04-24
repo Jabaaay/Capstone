@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Illuminate\Support\Facades\Session;
 
 class RegisteredUserController extends Controller
 {
@@ -30,21 +31,37 @@ class RegisteredUserController extends Controller
     public function store(Request $request): RedirectResponse
     {
         $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'first_name' => ['required', 'string', 'max:255'],
+            'last_name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class,
+            function ($attribute, $value, $fail) {
+                if (!str_ends_with($value, '@student.buksu.edu.ph')) {
+                    Session::flash('email_error', 'Only @student.buksu.edu.ph emails are allowed.');
+                    $fail('Only @student.buksu.edu.ph emails are allowed.');
+                }
+            },
+
+            ],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
         $user = User::create([
-            'name' => $request->name,
+            'first_name' => $request->first_name,
+            'last_name' => $request->last_name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+
+
         ]);
 
         event(new Registered($user));
 
-        Auth::login($user);
+        Session::flash('success_register', 'Registration successful! You may now log in.');
+        
 
-        return redirect(route('dashboard', absolute: false));
+       // Auth::login($user);
+
+
+        return redirect(route('login', absolute: false));
     }
 }
