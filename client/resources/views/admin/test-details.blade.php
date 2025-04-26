@@ -51,9 +51,14 @@
                     <!-- Page Heading -->
                     <div class="d-sm-flex align-items-center justify-content-between mb-4">
                         <h1 class="h3 mb-0 text-gray-800">Test Details</h1>
-                        <a href="{{ route('admin.tests') }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm">
-                            <i class="fas fa-arrow-left fa-sm text-white-50"></i> Back to Tests
-                        </a>
+                        <div>
+                            <a href="{{ route('admin.test.download-pdf', $test) }}" class="d-none d-sm-inline-block btn btn-sm btn-primary shadow-sm mr-2">
+                                <i class="fas fa-download fa-sm text-white-50"></i> Download PDF
+                            </a>
+                            <a href="{{ route('admin.tests') }}" class="d-none d-sm-inline-block btn btn-sm btn-info shadow-sm">
+                                <i class="fas fa-arrow-left fa-sm text-white-50"></i> Back to Tests
+                            </a>
+                        </div>
                     </div>
 
                     <!-- Test Information Card -->
@@ -153,7 +158,66 @@
                             </div>
                         </div>
                     </div>
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3">
+                            <h6 class="m-0 font-weight-bold text-primary">Facial Expression Analysis</h6>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered" width="100%" cellspacing="0">
+                                    <thead>
+                                        <tr>
+                                            <th>Expression</th>
+                                            <th>Confidence</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @forelse($test->facialExpressions as $expression)
+                                            <tr>
+                                                <td>{{ ucfirst($expression->expression) }}</td>
+                                                <td>{{ number_format($expression->confidence * 100, 2) }}%</td>
+                                            </tr>
+                                        @empty
+                                            <tr>
+                                                <td colspan="3" class="text-center">No facial expressions recorded</td>
+                                            </tr>
+                                        @endforelse
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            <!-- Summary of Most Common Expression -->
+                            @if($test->facialExpressions->count() > 0)
+                                <div class="mt-4">
+                                    <h6 class="font-weight-bold">Most Common Expression:</h6>
+                                    @php
+                                        $mostCommonExpression = $test->facialExpressions
+                                            ->groupBy('expression')
+                                            ->map(function ($group) {
+                                                return $group->count();
+                                            })
+                                            ->sortDesc()
+                                            ->keys()
+                                            ->first();
+                                        
+                                        $expressionCount = $test->facialExpressions
+                                            ->where('expression', $mostCommonExpression)
+                                            ->count();
+                                        
+                                        $totalExpressions = $test->facialExpressions->count();
+                                        $percentage = ($expressionCount / $totalExpressions) * 100;
+                                    @endphp
+                                    <p>
+                                        <span class="badge badge-primary">{{ ucfirst($mostCommonExpression) }}</span>
+                                        ({{ number_format($percentage, 1) }}% of total expressions)
+                                    </p>
+                                </div>
+                            @endif
+                        </div>
+                    </div>
+                    
                 </div>
+                
                 <!-- /.container-fluid -->
 
             </div>

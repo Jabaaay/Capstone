@@ -1,3 +1,11 @@
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+    }
+</style>
+
 <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
 
     <!-- Sidebar - Brand -->
@@ -38,6 +46,16 @@
         <a class="nav-link" href="{{ route('admin.users') }}">
             <i class="fas fa-fw fa-users"></i>
             <span>Users</span>
+        </a>
+    </li>
+
+    <hr class="sidebar-divider d-none d-md-block">
+
+    <!-- Nav Item - Video Feed -->
+    <li class="nav-item {{ request()->routeIs('admin.video-feed') ? 'active' : '' }}">
+        <a class="nav-link" href="{{ route('admin.video-feed') }}">
+            <i class="fas fa-fw fa-video"></i>
+            <span>Video Feed</span>
         </a>
     </li>
 

@@ -13,6 +13,10 @@ class FacialExpression extends Model
         'confidence'
     ];
 
+    protected $casts = [
+        'confidence' => 'float'
+    ];
+
     public function user()
     {
         return $this->belongsTo(User::class);

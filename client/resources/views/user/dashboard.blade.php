@@ -80,21 +80,28 @@
                 <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                     <thead class="thead-dark">
                     <tr>
-                        <th>Score</th>
-                        <th>Level</th>
+                        <th>Remarks</th>
                         <th>Date</th>
                     
                     </tr>
                     </thead>
                     <tbody>
-                    @foreach(auth()->user()->tests->take(5) as $test)
+                    @foreach(auth()->user()->tests as $test)
+                    
                     <tr>
-                        <td>{{ $test->total_score }}</td>
                     
                         <td>
-                            <span class="badge badge-{{ $test->depression_level == 'Normal' ? 'success' : 'danger' }}">
-                                {{ $test->depression_level }}
-                            </span>
+                            @if($test->total_score <= 10)
+                                <span class="badge badge-success">You're doing well</span>
+                            @elseif($test->total_score <= 16)
+                                <span class="badge badge-primary">Consider talking to someone</span>
+                            @elseif($test->total_score <= 20)
+                                <span class="badge badge-secondary">You might need some support</span>
+                            @elseif($test->total_score <= 30)
+                                <span class="badge badge-warning">Professional help recommended</span>
+                            @else
+                                <span class="badge badge-danger">Please seek immediate support</span>
+                            @endif
                         </td>
                         <td>{{ $test->created_at->timezone('Asia/Manila')->format('F j, Y g:i A') }}</td>
                     </tr>

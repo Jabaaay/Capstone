@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Test;
 use App\Models\User;
+use DB;
+use Carbon\Carbon;
+use Barryvdh\DomPDF\Facade\Pdf;
+use App\Models\FacialExpression;
 
 class AdminController extends Controller
 {
@@ -17,27 +21,69 @@ class AdminController extends Controller
         $notDiagnosedCount = Test::where('depression_level', 'Normal')->count();
         $recentTests = Test::with('user')->latest()->take(1)->get();
 
-        return view('admin.dashboard', compact('totalTests', 'totalUsers', 'recentTests', 'diagnosedCount', 'notDiagnosedCount'));
+        $normalCount = Test::where('depression_level', 'Normal')->count();
+        $mildCount = Test::where('depression_level', 'Mild mood disturbance')->count();
+        $borderlineCount = Test::where('depression_level', 'Borderline depression')->count();
+        $moderateCount = Test::where('depression_level', 'Moderate depression')->count();
+        $severeCount = Test::where('depression_level', 'Severe depression')->count();
+        $extremeCount = Test::where('depression_level', 'Extreme depression')->count();
+
+        $mostFrequentExpression = FacialExpression::select('expression', DB::raw('COUNT(*) as count'))
+            ->groupBy('expression')
+            ->orderBy('count', 'desc')
+            ->first();
+        
+
+        // Get test data for the area chart
+        $testData = Test::select(
+            DB::raw('DATE(created_at) as date'),
+            DB::raw('total_score as score')
+        )
+        ->orderBy('date')
+        ->get();
+
+        $testDates = $testData->pluck('date')->map(function($date) {
+            return Carbon::parse($date)->format('M d');
+        })->toArray();
+
+        $testScores = $testData->pluck('score')->toArray();
+
+        return view('admin.dashboard', compact('totalTests', 'totalUsers', 'recentTests', 'diagnosedCount', 'notDiagnosedCount', 'testDates', 'testScores', 'normalCount', 'mildCount', 'moderateCount', 'severeCount', 'extremeCount', 'borderlineCount'));
     }
 
     public function tests()
     {
-        $tests = Test::with('user')->latest()->paginate(10);
+        $tests = Test::with('user')->latest()->paginate();
         return view('admin.tests', compact('tests'));
     }
 
     public function users()
     {
-        $users = User::where('is_admin', 0)->latest()->paginate(10);
+        $users = User::where('is_admin', 0)->latest()->paginate();
         return view('admin.users', compact('users'));
     }
 
     public function showTest(Test $test)
     {
-        $test->load('answers');
+        $test->load(['answers', 'facialExpressions']);
         $questions = $this->getQuestions();
         
         return view('admin.test-details', compact('test', 'questions'));
+    }
+
+    public function videoFeed()
+    {
+        return view('admin.video-feed');
+    }
+
+    public function downloadPdf(Test $test)
+    {
+        $test->load(['answers', 'facialExpressions']);
+        $questions = $this->getQuestions();
+        
+        $pdf = PDF::loadView('admin.test-pdf', compact('test', 'questions'));
+        
+        return $pdf->download('test-results-' . $test->id . '.pdf');
     }
 
     private function getQuestions()

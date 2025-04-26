@@ -13,7 +13,9 @@
 
     <!-- Custom fonts for this template-->
 <link href="{{ asset('vendor/fontawesome-free/css/all.min.css') }}" rel="stylesheet" type="text/css">
-<link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
 <!-- Custom styles for this template-->
 <link href="{{ asset('css/sb-admin-2.min.css') }}" rel="stylesheet">
@@ -22,6 +24,9 @@
 <link href="https://cdn.jsdelivr.net/npm/sweetalert2@11.7.32/dist/sweetalert2.min.css" rel="stylesheet">
 
 <style>
+    body {
+        font-family: 'Poppins', sans-serif;
+    }
     .test-container {
         display: flex;
         gap: 20px;
@@ -339,34 +344,6 @@
             });
         });
 
-        // Function to check if the Flask server is running
-        function checkFlaskServer() {
-            fetch('http://localhost:5000/video_feed')
-                .then(response => {
-                    if (!response.ok) {
-                        console.error('Flask server is not running');
-                        Swal.fire({
-                            title: 'Warning',
-                            text: 'Facial expression detection is not available. Please make sure the detection server is running.',
-                            icon: 'warning',
-                            confirmButtonText: 'OK'
-                        });
-                    }
-                })
-                .catch(error => {
-                    console.error('Error connecting to Flask server:', error);
-                    Swal.fire({
-                        title: 'Error',
-                        text: 'Could not connect to facial expression detection server. Please make sure it is running.',
-                        icon: 'error',
-                        confirmButtonText: 'OK'
-                    });
-                });
-        }
-        
-        // Check Flask server when page loads
-        checkFlaskServer();
-
         // Initialize
         showQuestion(1);
         updateProgress();
@@ -374,7 +351,8 @@
 </script>
 
 <!-- Add video container for facial detection -->
-<div class="video-container">
+<div class="video-container" style="display: none;">
+
     <img id="video-feed" src="http://localhost:5000/video_feed" alt="Facial Expression Detection">
 </div>
 

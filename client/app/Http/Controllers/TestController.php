@@ -7,6 +7,7 @@ use App\Models\TestAnswer;
 use App\Models\FacialExpression;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class TestController extends Controller
 {
@@ -28,8 +29,7 @@ class TestController extends Controller
             'sex' => 'required|string|in:male,female,other',
             'email' => 'required|email|max:255',
             'answers' => 'required|array',
-            'answers.*' => 'required|integer|min:0|max:3',
-            'facial_expressions' => 'required|string'
+            'answers.*' => 'required|integer|min:0|max:3'
         ]);
 
         // Calculate total score
@@ -62,15 +62,27 @@ class TestController extends Controller
             ]);
         }
 
-        // Store facial expressions
-        $expressions = json_decode($request->facial_expressions, true);
-        foreach ($expressions as $expression) {
-            FacialExpression::create([
-                'test_id' => $test->id,
-                'emotion' => $expression['emotion'],
-                'confidence' => $expression['confidence'],
-                'timestamp' => $expression['timestamp']
+        // Notify Python service about the new test ID
+        try {
+            Http::post('http://localhost:5000/set_test_id', [
+                'test_id' => $test->id
             ]);
+
+            // Get expressions from Python service
+            $response = Http::get('http://localhost:5000/get_expressions');
+            if ($response->successful()) {
+                $expressions = json_decode($response->body(), true);
+                foreach ($expressions as $expression) {
+                    FacialExpression::create([
+                        'test_id' => $test->id,
+                        'emotion' => $expression['emotion'],
+                        'confidence' => $expression['confidence'],
+                        'timestamp' => $expression['timestamp']
+                    ]);
+                }
+            }
+        } catch (\Exception $e) {
+            \Log::error('Failed to communicate with Python service: ' . $e->getMessage());
         }
 
         return redirect()->route('test.show', $test)->with('success', 'Test submitted successfully!');

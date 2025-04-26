@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Test;
 use App\Models\TestAnswer;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
+
 
 class UserController extends Controller
 {
@@ -28,13 +30,46 @@ class UserController extends Controller
             'course' => 'required|string|max:255',
             'age' => 'required|integer|min:18|max:100',
             'contact_number' => 'required|string|max:20',
-            'sex' => 'required|in:male,female',
+            'sex' => 'required|in:male,female,other',
             'email' => Auth::user()->email,
             'terms_accepted' => 'required|accepted'
         ]);
 
+        // Create the test record first
+        $test = Test::create([
+            'user_id' => auth()->id(),
+            'first_name' => Auth::user()->first_name,
+            'last_name' => Auth::user()->last_name,
+            'college' => $validated['college'],
+            'course' => $validated['course'],
+            'age' => $validated['age'],
+            'contact_number' => $validated['contact_number'],
+            'sex' => $validated['sex'],
+            'email' => Auth::user()->email,
+            'total_score' => 0,
+            'depression_level' => 'Pending'
+        ]);
+
         // Store the test information in session
         session(['test_info' => $validated]);
+        session(['test_id' => $test->id]);
+
+        // Set the test ID and user ID in the Python service
+        try {
+            Http::post('http://localhost:5000/set_test_info', [
+                'test_id' => $test->id,
+                'user_id' => auth()->id()
+            ]);
+        } catch (\Exception $e) {
+            \Log::error('Failed to set test info in Python service: ' . $e->getMessage());
+        }
+
+        // Start video
+        try {
+            Http::post('http://localhost:5000/start_video');
+        } catch (\Exception $e) {
+            \Log::error('Failed to start video: ' . $e->getMessage());
+        }
 
         return redirect()->route('user.test.questions');
     }
@@ -263,7 +298,7 @@ class UserController extends Controller
 
     public function submitAnswers(Request $request)
     {
-        if (!session()->has('test_info')) {
+        if (!session()->has('test_info') || !session()->has('test_id')) {
             return redirect()->route('user.test.form');
         }
 
@@ -277,17 +312,11 @@ class UserController extends Controller
         // Determine the depression level based on the total score
         $depressionLevel = $this->determineDepressionLevel($totalScore);
 
-        // Store the test results
-        $test = Test::create([
-            'user_id' => auth()->id(),
-            'first_name' => Auth::user()->first_name,
-            'last_name' => Auth::user()->last_name,
-            'college' => session('test_info.college'),
-            'course' => session('test_info.course'),
-            'age' => session('test_info.age'),
-            'contact_number' => session('test_info.contact_number'),
-            'sex' => session('test_info.sex'),
-            'email' => Auth::user()->email,
+        // Get the test record
+        $test = Test::findOrFail(session('test_id'));
+
+        // Update the test results
+        $test->update([
             'total_score' => $totalScore,
             'depression_level' => $depressionLevel
         ]);
@@ -301,8 +330,15 @@ class UserController extends Controller
             ]);
         }
 
+        // Stop video
+        try {
+            Http::post('http://localhost:5000/stop_video');
+        } catch (\Exception $e) {
+            \Log::error('Failed to stop video: ' . $e->getMessage());
+        }
+
         // Clear the session
-        session()->forget('test_info');
+        session()->forget(['test_info', 'test_id']);
 
         return view('user.test-results', compact('totalScore', 'depressionLevel'));
     }

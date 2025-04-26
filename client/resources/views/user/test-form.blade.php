@@ -50,6 +50,7 @@
                     </div>
 
                     <div class="max-w-2xl mx-auto p-6">
+                        <h1>Personal Information</h1>
                         <form action="{{ route('user.test.submit') }}" method="POST" class="space-y-6">
                             @csrf
                             <div class="form-group">
@@ -74,7 +75,8 @@
                                     <option value="College of Education">College of Education</option>
                                     <option value="College of Technology">College of Technology</option> {{-- Added --}}
                                     <option value="College of Nursing">College of Nursing</option>
-                                    <option value="College of Public Administration">College of Public Administration</option> {{-- Added --}}
+                                    <option value="College of Public Administration and Governance">College of Public Administration and Governance</option>
+                                    <option value="College of Law">College of Law</option> {{-- Added --}}
                                     {{-- Remove College of Engineering if not needed, or add its courses to JS --}}
                                 </select>
                             </div>
@@ -108,6 +110,10 @@
                                     <label class="inline-flex items-center">
                                         <input type="radio" name="sex" value="female" required>
                                         <span class="ml-2">Female</span>
+                                    </label>
+                                    <label class="inline-flex items-center">
+                                        <input type="radio" name="sex" value="other" required>
+                                        <span class="ml-2">Prefer not to say</span>
                                     </label>
                                 </div>
                             </div>
@@ -234,10 +240,12 @@
             "College of Nursing": [
                 "Bachelor of Science in Nursing"
             ],
-            "College of Public Administration": [
+            "College of Public Administration and Governance": [
                 "Bachelor of Public Administration Major in Local Governance"
+            ],
+            "College of Law": [
+                "Bachelor of Science in Juris Doctor"
             ]
-            // Add other colleges like "College of Engineering" here if needed
         };
 
         // Get references to the select elements

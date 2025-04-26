@@ -23,6 +23,7 @@
 
     <!-- Custom styles for this page -->
     <link href="{{ asset('vendor/datatables/dataTables.bootstrap4.min.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/chart.min.css') }}" rel="stylesheet">
 
 </head>
 
@@ -57,11 +58,29 @@
                                     <div class="row no-gutters align-items-center">
                                         <div class="col mr-2">
                                             <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
-                                            Total Tested Patients</div>
-                                            <div class="h3 mb-0 font-weight-bold text-gray-800">{{ $totalTests }}</div>
+                                            Total Tests</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalTests }}</div>
                                         </div>
                                         <div class="col-auto">
-                                            <i class="fas fa-user fa-2x text-gray-300"></i>
+                                            <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Earnings (Monthly) Card Example -->
+                        <div class="col-xl-3 col-md-6 mb-4">
+                            <div class="card border-left-success shadow h-100 py-2">
+                                <div class="card-body">
+                                    <div class="row no-gutters align-items-center">
+                                        <div class="col mr-2">
+                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                                                Total Users</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $totalUsers }}</div>
+                                        </div>
+                                        <div class="col-auto">
+                                            <i class="fas fa-users fa-2x text-gray-300"></i>
                                         </div>
                                     </div>
                                 </div>
@@ -75,33 +94,11 @@
                                     <div class="row no-gutters align-items-center">
                                         <div class="col mr-2">
                                             <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
-                                            Diagnosed with Depression</div>
-                                            <div class="h3 mb-0 font-weight-bold text-gray-800">{{ $diagnosedCount}}</div>
+                                                Diagnosed</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $diagnosedCount }}</div>
                                         </div>
                                         <div class="col-auto">
-                                            <i class="fas fa-sad-tear fa-2x text-gray-300"></i>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Earnings (Monthly) Card Example -->
-                        <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card border-left-success shadow h-100 py-2">
-                                <div class="card-body">
-                                    <div class="row no-gutters align-items-center">
-                                        <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Diagnosed with No Depression
-                                            </div>
-                                            <div class="row no-gutters align-items-center">
-                                                <div class="col-auto">
-                                                    <div class="h3 mb-0 mr-3 font-weight-bold text-gray-800">{{ $notDiagnosedCount }}</div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-auto">
-                                            <i class="fas fa-smile fa-2x text-gray-300"></i>
+                                            <i class="fas fa-exclamation-triangle fa-2x text-gray-300"></i>
                                         </div>
                                     </div>
                                 </div>
@@ -110,17 +107,16 @@
 
                         <!-- Pending Requests Card Example -->
                         <div class="col-xl-3 col-md-6 mb-4">
-                            <div class="card border-left-warning shadow h-100 py-2">
+                            <div class="card border-left-info shadow h-100 py-2">
                                 <div class="card-body">
                                     <div class="row no-gutters align-items-center">
                                         <div class="col mr-2">
-                                            <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
-                                            Total Users
-                                            </div>
-                                            <div class="h3 mb-0 font-weight-bold text-gray-800">{{ $totalUsers }}</div>
+                                            <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                                Not Diagnosed</div>
+                                            <div class="h5 mb-0 font-weight-bold text-gray-800">{{ $notDiagnosedCount }}</div>
                                         </div>
                                         <div class="col-auto">
-                                            <i class="fas fa-hourglass-half fa-2x text-gray-300"></i>
+                                            <i class="fas fa-check-circle fa-2x text-gray-300"></i>
                                         </div>
                                     </div>
                                 </div>
@@ -138,14 +134,12 @@
                                 <!-- Card Header - Dropdown -->
                                 <div
                                     class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                    <h6 class="m-0 font-weight-bold text-primary">Bar Graph</h6>
-                                    <div class="dropdown no-arrow">
-                                    </div>
+                                    <h6 class="m-0 font-weight-bold text-primary">Test Results Over Time</h6>
                                 </div>
                                 <!-- Card Body -->
                                 <div class="card-body">
-                                    <div class="chart-area">
-                                        <canvas id="myAreaChart"></canvas>
+                                <div class="chart-bar">
+                                        <canvas id="myBarChart"></canvas>
                                     </div>
                                 </div>
                             </div>
@@ -157,7 +151,7 @@
                                 <!-- Card Header - Dropdown -->
                                 <div
                                     class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                                    <h6 class="m-0 font-weight-bold text-primary">Donut Chart</h6>
+                                    <h6 class="m-0 font-weight-bold text-primary">Diagnosis Distribution</h6>
                                 </div>
                                 <!-- Card Body -->
                                 <div class="card-body">
@@ -166,12 +160,7 @@
                                     </div>
                                     <div class="mt-4 text-center small">
                                         <span class="mr-2">
-                                            <i class="fas fa-circle text-success"></i> Not Diagnosed
-                                        </span>
-                                        <span class="mr-2">
-                                            <i class="fas fa-circle text-danger"></i> Diagnosed
-                                        </span>
-                                        <span class="mr-2">
+                                            <i></i> Depression Level
                                         </span>
                                     </div>
                                 </div>
@@ -220,6 +209,9 @@
 
 
 </div>
+    
+
+
 
 
 
@@ -237,6 +229,8 @@
         <!-- End of Content Wrapper -->
 
     </div>
+
+    
     <!-- End of Page Wrapper -->
 
     <!-- Scroll to Top Button-->
@@ -277,6 +271,7 @@
     <!-- Page level plugins -->
     <script src="{{ asset('vendor/datatables/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('vendor/datatables/dataTables.bootstrap4.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.4/dist/Chart.min.js"></script>
 
     <!-- Page level custom scripts -->
     <script src="{{ asset('js/demo/datatables-demo.js') }}"></script>
@@ -286,6 +281,23 @@
             $('#dataTable').DataTable();
         });
     </script>
+
+    <script>
+        // Pass data to charts
+        var testDates = @json($testDates);
+        var testScores = @json($testScores);
+        var diagnosedCount = {{ $diagnosedCount }};
+        var notDiagnosedCount = {{ $notDiagnosedCount }};
+        var normalCount = {{ $normalCount }};
+        var mildCount = {{ $mildCount }};
+        var moderateCount = {{ $moderateCount }};
+        var severeCount = {{ $severeCount }};
+        var extremeCount = {{ $extremeCount }};
+        var borderlineCount = {{ $borderlineCount }};
+    </script>
+    <script src="{{ asset('js/demo/chart-bar-demo.js') }}"></script>
+    <script src="{{ asset('js/demo/chart-pie-demo.js') }}"></script>
+    
 
 </body>
 
