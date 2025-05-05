@@ -29,7 +29,9 @@ class TestController extends Controller
             'sex' => 'required|string|in:male,female,other',
             'email' => 'required|email|max:255',
             'answers' => 'required|array',
-            'answers.*' => 'required|integer|min:0|max:3'
+            'answers.*' => 'required|integer|min:0|max:3',
+            'medical_history' => 'nullable|array',
+            'medical_history.*' => 'string'
         ]);
 
         // Calculate total score
@@ -50,7 +52,8 @@ class TestController extends Controller
             'sex' => $validated['sex'],
             'email' => $validated['email'],
             'total_score' => $totalScore,
-            'depression_level' => $depressionLevel
+            'depression_level' => $depressionLevel,
+            'medical_history' => implode(', ', $validated['medical_history'])
         ]);
 
         // Store answers

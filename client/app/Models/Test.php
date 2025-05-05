@@ -16,11 +16,13 @@ class Test extends Model
         'college',
         'course',
         'age',
+        'birthday',
         'contact_number',
         'sex',
         'email',
         'total_score',
-        'depression_level'
+        'depression_level',
+        'medical_history'
     ];
 
     public function user()

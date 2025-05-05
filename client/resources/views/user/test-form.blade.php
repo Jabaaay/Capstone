@@ -50,7 +50,7 @@
                     </div>
 
                     <div class="max-w-2xl mx-auto p-6">
-                        <h1>Personal Information</h1>
+                        <h3>Personal Information</h3>
                         <form action="{{ route('user.test.submit') }}" method="POST" class="space-y-6">
                             @csrf
                             <div class="form-group">
@@ -88,12 +88,16 @@
                                     <option value="">Select College First</option>
                                 </select>
                             </div>
+                            <div class="form-group">
+                                <label>Birthday</label>
+                                <input type="date" id="birthday" name="birthday" required class="form-control">
+                            </div>
 
                             <div class="form-group">
                                 <label>Age</label>
-                                {{-- Remove duplicate 'required' attribute --}}
-                                <input type="number" id="age" name="age" required min="18" max="100" class="form-control">
+                                <input type="number" id="age" name="age" required min="18" max="100" class="form-control" readonly>
                             </div>
+
 
                             <div class="form-group">
                                 <label>Contact Number</label>
@@ -123,6 +127,123 @@
                                 {{-- Display user's email, disable input --}}
                                 <input type="email" id="email" name="email" value="{{ Auth::user()->email }}" class="form-control" disabled>
                             </div>
+
+                            <h3>Medical History</h3>
+                            <label>Please check all that apply:</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="medical_history[]" value="None">
+                                <label class="form-check-label" for="medical_history">
+                                    None
+                                </label>
+                      
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="medical_history[]" value="Anemia">
+                                <label class="form-check-label" for="medical_history">
+                                    Anemia
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="medical_history[]" value="Anxiety">
+                                <label class="form-check-label" for="medical_history">
+                                    Anxiety
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="medical_history[]" value="Asthma">
+                                <label class="form-check-label" for="medical_history">
+                                    Asthma
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="medical_history[]" value="Blood Clots">
+                                <label class="form-check-label" for="medical_history">
+                                    Blood Clots
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="medical_history[]" value="Cerebrovascular Accident">
+                                <label class="form-check-label" for="medical_history">
+                                    Cerebrovascular Accident
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="medical_history[]" value="Depression">
+                                <label class="form-check-label" for="medical_history">
+                                    Depression
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="medical_history[]" value="Hypertension">
+                                <label class="form-check-label" for="medical_history">
+                                    Hypertension
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="medical_history[]" value="Thyroid Disorder">
+                                <label class="form-check-label" for="medical_history">
+                                    Thyroid Disorder
+                                </label>
+                            </div>
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="medical_history[]" value="Allergies">
+                                <label class="form-check-label" for="medical_history">
+                                    Allergies
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="medical_history[]" value="Arthritis">
+                                <label class="form-check-label" for="medical_history">
+                                    Arthritis
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="medical_history[]" value="Cancer">
+                                <label class="form-check-label" for="medical_history">
+                                    Cancer
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="medical_history[]" value="Diabetes">
+                                <label class="form-check-label" for="medical_history">
+                                    Diabetes
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="medical_history[]" value="Migraine Headache">
+                                <label class="form-check-label" for="medical_history">
+                                    Migraine Headache
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="medical_history[]" value="Peptic Ulcer Disease">
+                                <label class="form-check-label" for="medical_history">
+                                    Peptic Ulcer Disease
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="medical_history[]" value="Seizure Disorder">
+                                <label class="form-check-label" for="medical_history">
+                                    Seizure Disorder
+                                </label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" name="medical_history[]" value="Others" id="other">
+                                <label class="form-check-label" for="medical_history">
+                                    Other
+                                </label>
+                            </div>
+                            <div class="form-group" id="other_medical_history" style="display: none;">
+                                <input type="text" id="other_medical_history" name="other_medical_history" class="form-control" placeholder="Please specify (if other)">
+                            </div>
+
+                           
+                            
+
+
+
+
 
                              <!-- Checkbox with Modal Trigger -->
                              <div class="form-group d-flex justify-content-between align-items-center">
@@ -200,6 +321,17 @@
 
     <!-- Page level custom scripts -->
     <script src="{{ asset('js/demo/datatables-demo.js') }}"></script>
+
+    <script>
+        // if other is checked, show input field
+        $('#other').change(function() {
+            if ($(this).is(':checked')) {
+                $('#other_medical_history').show();
+            } else {
+                $('#other_medical_history').hide();
+            }
+        });
+    </script>
 
     <script>
         // College to Course Mapping
@@ -297,6 +429,29 @@
             }
         });
     </script>
+
+<script>
+    // Event listener to calculate age whenever the user selects a birthday
+    document.getElementById('birthday').addEventListener('change', function() {
+        const birthdayInput = document.getElementById('birthday').value;
+        if (birthdayInput) {
+            // Calculate age
+            const birthDate = new Date(birthdayInput);
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            const month = today.getMonth() - birthDate.getMonth();
+
+            // Adjust age if the birthday hasn't occurred yet this year
+            if (month < 0 || (month === 0 && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+
+            // Display the calculated age in the 'age' field
+            document.getElementById('age').value = age;
+        }
+    });
+</script>
+
 
 </body>
 

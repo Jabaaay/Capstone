@@ -93,6 +93,11 @@
                                             <td>{{ $test->course }}</td>
                                         </tr>
                                         <tr>
+                                            <td>Birthday</td>
+                                            <td>{{ \Carbon\Carbon::parse($test->birthday)->format('F d, Y') }}
+                                            </td>
+                                        </tr>
+                                        <tr>
                                             <td>Age</td>
                                             <td>{{ $test->age }}</td>
                                         </tr>
@@ -107,6 +112,10 @@
                                         <tr>
                                             <td>Email</td>
                                             <td>{{ $test->email }}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Medical History</td>
+                                            <td>{{ $test->medical_history }}</td>
                                         </tr>
                                         <tr>
                                             <td>Total Score</td>

@@ -29,11 +29,22 @@ class UserController extends Controller
             'college' => 'required|string|max:255',
             'course' => 'required|string|max:255',
             'age' => 'required|integer|min:18|max:100',
+            'birthday' => 'required|date',
             'contact_number' => 'required|string|max:20',
             'sex' => 'required|in:male,female,other',
             'email' => Auth::user()->email,
-            'terms_accepted' => 'required|accepted'
+            'terms_accepted' => 'required|accepted',
+            'medical_history' => 'nullable|array',
+            'medical_history.*' => 'string'
         ]);
+        $medicalHistory = $request->input('medical_history', []);
+
+    if (in_array('Others', $medicalHistory) && !empty($request->input('other_medical_history'))) {
+        $medicalHistory = array_filter($medicalHistory, fn($item) => $item !== 'Others');
+        $medicalHistory[] = 'Others: ' . $request->input('other_medical_history');
+    }
+
+    $medicalHistoryStr = implode(', ', $medicalHistory);
 
         // Create the test record first
         $test = Test::create([
@@ -43,11 +54,13 @@ class UserController extends Controller
             'college' => $validated['college'],
             'course' => $validated['course'],
             'age' => $validated['age'],
+            'birthday' => $validated['birthday'],
             'contact_number' => $validated['contact_number'],
             'sex' => $validated['sex'],
             'email' => Auth::user()->email,
             'total_score' => 0,
-            'depression_level' => 'Pending'
+            'depression_level' => 'Pending',
+            'medical_history' => $medicalHistoryStr
         ]);
 
         // Store the test information in session
@@ -86,54 +99,54 @@ class UserController extends Controller
                 'text' => 'Sadness',
                 'options' => [
                     ['value' => 0, 'text' => 'I do not feel sad.'],
-                    ['value' => 1, 'text' => 'I feel sad'],
-                    ['value' => 2, 'text' => 'I am sad all the time and I can\'t snap out of it.'],
+                    ['value' => 1, 'text' => 'I feel sad much of the time.'],
+                    ['value' => 2, 'text' => 'I am sad all the time.'],
                     ['value' => 3, 'text' => 'I am so sad and unhappy that I can\'t stand it.']
                 ]
             ],
             [
                 'id' => 2,
-                'text' => 'I am not particularly discouraged about the future.',
+                'text' => 'Pessimism',
                 'options' => [
-                    ['value' => 0, 'text' => 'I am not particularly discouraged about the future.'],
-                    ['value' => 1, 'text' => 'I feel discouraged about the future.'],
-                    ['value' => 2, 'text' => 'I feel I have nothing to look forward to.'],
-                    ['value' => 3, 'text' => 'I feel the future is hopeless and that things cannot improve.']
+                    ['value' => 0, 'text' => 'I am not discouraged about my future.'],
+                    ['value' => 1, 'text' => 'I feel more discouraged about my future than I used to.'],
+                    ['value' => 2, 'text' => 'I do not expect things to work out for me.'],
+                    ['value' => 3, 'text' => 'I feel my future is hopeless and will only get worse.']
                 ]
             ],
             [
                 'id' => 3,
-                'text' => 'I do not feel like a failure.',
+                'text' => 'Past Failure',
                 'options' => [
                     ['value' => 0, 'text' => 'I do not feel like a failure.'],
-                    ['value' => 1, 'text' => 'I feel I have failed more than the average person.'],
-                    ['value' => 2, 'text' => 'As I look back on my life, all I can see is a lot of failures.'],
-                    ['value' => 3, 'text' => 'I feel I am a complete failure as a person.']
+                    ['value' => 1, 'text' => 'I have failed more than I should have.'],
+                    ['value' => 2, 'text' => 'As I look back, I see a lot of failures.'],
+                    ['value' => 3, 'text' => 'I feel I am a total failure as a person.']
                 ]
             ],
             [
                 'id' => 4,
-                'text' => 'I get as much satisfaction out of things as I used to.',
+                'text' => 'Loss of Pleasure',
                 'options' => [
-                    ['value' => 0, 'text' => 'I get as much satisfaction out of things as I used to.'],
-                    ['value' => 1, 'text' => 'I don\'t enjoy things the way I used to.'],
-                    ['value' => 2, 'text' => 'I don\'t get real satisfaction out of anything anymore.'],
-                    ['value' => 3, 'text' => 'I am dissatisfied or bored with everything.']
+                    ['value' => 0, 'text' => 'I get as much pleasure as i ever did from the things I used to enjoy.'],
+                    ['value' => 1, 'text' => 'I don\'t enjoy things as much as I used to.'],
+                    ['value' => 2, 'text' => 'I get very little pleasure from the things I used to enjoy.'],
+                    ['value' => 3, 'text' => 'I can\'t get any pleasure from the things I used to enjoy.']
                 ]
             ],
             [
                 'id' => 5,
-                'text' => 'I don\'t feel particularly guilty',
+                'text' => 'Guilty Feelings',
                 'options' => [
                     ['value' => 0, 'text' => 'I don\'t feel particularly guilty'],
-                    ['value' => 1, 'text' => 'I feel guilty a good part of the time.'],
+                    ['value' => 1, 'text' => 'I feel guilty over many things I have done or should have done.'],
                     ['value' => 2, 'text' => 'I feel quite guilty most of the time.'],
                     ['value' => 3, 'text' => 'I feel guilty all of the time.']
                 ]
             ],
             [
                 'id' => 6,
-                'text' => 'I don\'t feel I am being punished.',
+                'text' => 'Punishment Feelings',
                 'options' => [
                     ['value' => 0, 'text' => 'I don\'t feel I am being punished.'],
                     ['value' => 1, 'text' => 'I feel I may be punished.'],
@@ -143,27 +156,27 @@ class UserController extends Controller
             ],
             [
                 'id' => 7,
-                'text' => 'I don\'t feel disappointed in myself.',
+                'text' => 'Self-Dislike',
                 'options' => [
-                    ['value' => 0, 'text' => 'I don\'t feel disappointed in myself.'],
-                    ['value' => 1, 'text' => 'I am disappointed in myself.'],
-                    ['value' => 2, 'text' => 'I am disgusted with myself.'],
-                    ['value' => 3, 'text' => 'I hate myself.']
+                    ['value' => 0, 'text' => 'I feel the same about myself as ever.'],
+                    ['value' => 1, 'text' => 'I have lost confidence in myself.'],
+                    ['value' => 2, 'text' => 'I am dissapointed with myself.'],
+                    ['value' => 3, 'text' => 'I dislike myself.']
                 ]
             ],
             [
                 'id' => 8,
-                'text' => 'I don\'t feel I am any worse than anybody else.',
+                'text' => 'Self-Criticalness',
                 'options' => [
-                    ['value' => 0, 'text' => 'I don\'t feel I am any worse than anybody else.'],
-                    ['value' => 1, 'text' => 'I am critical of myself for my weaknesses or mistakes.'],
-                    ['value' => 2, 'text' => 'I blame myself all the time for my faults.'],
+                    ['value' => 0, 'text' => 'I don\'t criticize or blame myself more than usual.'],
+                    ['value' => 1, 'text' => 'I am more critical of myself than I used to be.'],
+                    ['value' => 2, 'text' => 'I criticize myself for all of my faults.'],
                     ['value' => 3, 'text' => 'I blame myself for everything bad that happens.']
                 ]
             ],
             [
                 'id' => 9,
-                'text' => 'I don\'t have any thoughts of killing myself.',
+                'text' => 'Suicidal Thoughts or Wishes',
                 'options' => [
                     ['value' => 0, 'text' => 'I don\'t have any thoughts of killing myself.'],
                     ['value' => 1, 'text' => 'I have thoughts of killing myself, but I would not carry them out.'],
@@ -173,122 +186,123 @@ class UserController extends Controller
             ],
             [
                 'id' => 10,
-                'text' => 'I don\'t cry any more than usual.',
+                'text' => 'Crying',
                 'options' => [
-                    ['value' => 0, 'text' => 'I don\'t cry any more than usual.'],
-                    ['value' => 1, 'text' => 'I cry more now than I used to.'],
-                    ['value' => 2, 'text' => 'I cry all the time now.'],
-                    ['value' => 3, 'text' => 'I used to be able to cry, but now I can\'t cry even though I want to.']
+                    ['value' => 0, 'text' => 'I don\'t cry anymore than I used to.'],
+                    ['value' => 1, 'text' => 'I cry more than I used to.'],
+                    ['value' => 2, 'text' => 'I cry over every little thing.'],
+                    ['value' => 3, 'text' => 'I feel like crying, but I can\'t.']
                 ]
             ],
             [
                 'id' => 11,
-                'text' => 'I am no more irritated by things than I ever was.',
+                'text' => 'Agitation',
                 'options' => [
-                    ['value' => 0, 'text' => 'I am no more irritated by things than I ever was.'],
-                    ['value' => 1, 'text' => 'I am slightly more irritated now than usual.'],
-                    ['value' => 2, 'text' => 'I am quite annoyed or irritated a good deal of the time.'],
-                    ['value' => 3, 'text' => 'I feel irritated all the time.']
+                    ['value' => 0, 'text' => 'I am no more restless or wound up than usual.'],
+                    ['value' => 1, 'text' => 'I feel more restless or wound up than usual'],
+                    ['value' => 2, 'text' => 'I am so restless or agitated, it\'s hard to stay still.'],
+                    ['value' => 3, 'text' => 'I am so restless or agitated that I have to keep moving or doing something.']
                 ]
             ],
             [
                 'id' => 12,
-                'text' => 'I have not lost interest in other people.',
+                'text' => 'Loss of Interest',
                 'options' => [
-                    ['value' => 0, 'text' => 'I have not lost interest in other people.'],
-                    ['value' => 1, 'text' => 'I am less interested in other people than I used to be.'],
-                    ['value' => 2, 'text' => 'I have lost most of my interest in other people.'],
-                    ['value' => 3, 'text' => 'I have lost all of my interest in other people.']
+                    ['value' => 0, 'text' => 'I have not lost interest in other people or activities.'],
+                    ['value' => 1, 'text' => 'I am less interested in other people or things than before.'],
+                    ['value' => 2, 'text' => 'I have lost most of my interest in other people or things.'],
+                    ['value' => 3, 'text' => 'It\'s hard to get interested in anything.']
                 ]
             ],
             [
                 'id' => 13,
-                'text' => 'I make decisions about as well as I ever could.',
+                'text' => 'Indecisiveness',
                 'options' => [
-                    ['value' => 0, 'text' => 'I make decisions about as well as I ever could.'],
-                    ['value' => 1, 'text' => 'I put off making decisions more than I used to.'],
-                    ['value' => 2, 'text' => 'I have greater difficulty in making decisions more than I used to.'],
-                    ['value' => 3, 'text' => 'I can\'t make decisions at all anymore.']
+                    ['value' => 0, 'text' => 'I make decisions about as well as ever'],
+                    ['value' => 1, 'text' => 'I find it more difficult to make decisions than usual.'],
+                    ['value' => 2, 'text' => 'I have much greater difficulty in making decisions than I used to.'],
+                    ['value' => 3, 'text' => 'I have trouble making any decisions.']
                 ]
             ],
             [
                 'id' => 14,
-                'text' => 'I don\'t feel that I look any worse than I used to.',
+                'text' => 'Worthlessness',
                 'options' => [
-                    ['value' => 0, 'text' => 'I don\'t feel that I look any worse than I used to.'],
-                    ['value' => 1, 'text' => 'I am worried that I am looking old or unattractive.'],
-                    ['value' => 2, 'text' => 'I feel there are permanent changes in my appearance that make me look unattractive'],
-                    ['value' => 3, 'text' => 'I believe that I look ugly.']
+                    ['value' => 0, 'text' => 'I do not feel that I am worthless.'],
+                    ['value' => 1, 'text' => 'I don\'t consider myself as worthwhile and useful as i used to.'],
+                    ['value' => 2, 'text' => 'I fell more worthless as compared to others.'],
+                    ['value' => 3, 'text' => 'i feel utterly worthless.']
                 ]
             ],
             [
                 'id' => 15,
-                'text' => 'I can work about as well as before.',
+                'text' => 'Loss of Energy',
                 'options' => [
-                    ['value' => 0, 'text' => 'I can work about as well as before.'],
-                    ['value' => 1, 'text' => 'It takes an extra effort to get started at doing something.'],
-                    ['value' => 2, 'text' => 'I have to push myself very hard to do anything.'],
-                    ['value' => 3, 'text' => 'I can\'t do any work at all.']
+                    ['value' => 0, 'text' => 'I have as much energy as ever.'],
+                    ['value' => 1, 'text' => 'I have less energy than I used to have.'],
+                    ['value' => 2, 'text' => 'I don\'t have enough energy to do very much.'],
+                    ['value' => 3, 'text' => 'I don\'t have energy to do anything.']
                 ]
             ],
             [
                 'id' => 16,
-                'text' => 'I can sleep as well as usual.',
+                'text' => 'Changes in Sleeping Patterns',
                 'options' => [
-                    ['value' => 0, 'text' => 'I can sleep as well as usual.'],
-                    ['value' => 1, 'text' => 'I don\'t sleep as well as I used to.'],
-                    ['value' => 2, 'text' => 'I wake up 1-2 hours earlier than usual and find it hard to get back to sleep.'],
-                    ['value' => 3, 'text' => 'I wake up several hours earlier than I used to and cannot get back to sleep.']
+                    ['value' => 0, 'text' => 'I have not experienced any change in my sleeping.'],
+                    ['value' => 1, 'text' => 'I sleep somewhat more than usual.'],
+                    ['value' => 2, 'text' => 'I sleep a lot more than usual.'],
+                    ['value' => 3, 'text' => 'I sleep most of the day.']
                 ]
             ],
             [
                 'id' => 17,
-                'text' => 'I don\'t get more tired than usual.',
+                'text' => 'Irritability',
                 'options' => [
-                    ['value' => 0, 'text' => 'I don\'t get more tired than usual.'],
-                    ['value' => 1, 'text' => 'I get tired more easily than I used to.'],
-                    ['value' => 2, 'text' => 'I get tired from doing almost anything.'],
-                    ['value' => 3, 'text' => 'I am too tired to do anything.']
+                    ['value' => 0, 'text' => 'I am not more irritable than usual.'],
+                    ['value' => 1, 'text' => 'I am more irritable than usual.'],
+                    ['value' => 2, 'text' => 'I am much more irritable than usual.'],
+                    ['value' => 3, 'text' => 'I am irritable all the time.']
                 ]
             ],
             [
                 'id' => 18,
-                'text' => 'My appetite is no worse than usual.',
+                'text' => 'Changes in Appetite',
                 'options' => [
-                    ['value' => 0, 'text' => 'My appetite is no worse than usual.'],
-                    ['value' => 1, 'text' => 'My appetite is not as good as it used to be.'],
-                    ['value' => 2, 'text' => 'My appetite is much worse now.'],
-                    ['value' => 3, 'text' => 'I have no appetite at all anymore.']
+                    ['value' => 0, 'text' => 'I have not experienced any change in my appetite.'],
+                    ['value' => 1, 'text' => 'My appetite is somewhat less than usual.'],
+                    ['value' => 2, 'text' => 'My appetite is much less than before.'],
+                    ['value' => 3, 'text' => 'I have no appetite at all.']
                 ]
             ],
             [
                 'id' => 19,
-                'text' => 'I haven\'t lost much weight, if any, lately.',
+                'text' => 'Concentration Difficulties',
                 'options' => [
-                    ['value' => 0, 'text' => 'I haven\'t lost much weight, if any, lately.'],
-                    ['value' => 1, 'text' => 'I have lost more than five pounds.'],
-                    ['value' => 2, 'text' => 'I have lost more than ten pounds.'],
-                    ['value' => 3, 'text' => 'I have lost more than fifteen pounds.']
+                    ['value' => 0, 'text' => 'I can concentrate as well as ever.'],
+                    ['value' => 1, 'text' => 'I can\'t concentrate as well as usual.'],
+                    ['value' => 2, 'text' => 'It\'s hard to keep my mind on anything for very long.'],
+                    ['value' => 3, 'text' => 'I find i can\'t concentrate on anything.']
                 ]
             ],
             [
                 'id' => 20,
-                'text' => 'I am no more worried about my health than usual.',
+                'text' => 'Tiredness and Fatigue',
                 'options' => [
-                    ['value' => 0, 'text' => 'I am no more worried about my health than usual.'],
-                    ['value' => 1, 'text' => 'I am worried about physical problems like aches, pains, upset stomach, or constipation.'],
-                    ['value' => 2, 'text' => 'I am very worried about physical problems and it\'s hard to think of much else.'],
-                    ['value' => 3, 'text' => 'I am so worried about my physical problems that I cannot think of anything else.']
+                    ['value' => 0, 'text' => 'I am no more tired or fatigued than usual.'],
+                    ['value' => 1, 'text' => 'I get more tired or fatigued more easily than usual.'],
+                    ['value' => 2, 'text' => 'I am too tired or fatigued to do a lot of the things I used to do.'],
+                    ['value' => 3, 'text' => 'I am too tired or fatigued to do most of the things I used to do.']
                 ]
             ],
             [
                 'id' => 21,
-                'text' => 'I have not noticed any recent change in my interest in sex.',
+                'text' => 'Loss of Interest in Sex',
                 'options' => [
                     ['value' => 0, 'text' => 'I have not noticed any recent change in my interest in sex.'],
                     ['value' => 1, 'text' => 'I am less interested in sex than I used to be.'],
                     ['value' => 2, 'text' => 'I have almost no interest in sex.'],
                     ['value' => 3, 'text' => 'I have lost interest in sex completely.']
+                    
                 ]
             ]
         ];
